@@ -1,0 +1,41 @@
+name: Deploy to k3s
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Build and push image (tagged with commit SHA)
+        run: |
+          IMAGE="ghcr.io/goodwordsai/ace_electronics_server:${GITHUB_SHA}"
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+
+      - name: Deploy to k3s via SSH (set image to commit SHA)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            IMAGE="ghcr.io/goodwordsai/ace_electronics_server:${{ github.sha }}"
+
+            sudo k3s kubectl -n prod set image deployment/ace-electronics-server \
+              ace-electronics-server=$IMAGE
+
+            sudo k3s kubectl -n prod rollout status deployment/ace-electronics-server --timeout=180s
+
