@@ -45,7 +45,7 @@ PRODUCTS = [
     },
     {
         "id": "prod_005",
-        "name": "Anker 737 Power Bank",
+        "name": "Aukey 737 Power Bank",
         "price": 149.99,
         "category": "Accessories",
         "in_stock": False,
