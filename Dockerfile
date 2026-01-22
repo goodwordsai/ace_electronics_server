@@ -3,6 +3,8 @@ FROM python:3.13-slim
 WORKDIR /app
 
 RUN pip install fastapi uvicorn
+RUN pip install --no-cache-dir uv
+RUN uv pip install --system "sentry-sdk[fastapi]"
 
 COPY main.py .
 
