@@ -63,12 +63,12 @@ class CheckoutRequest(BaseModel):
     customer_email: str
 
 
-@app.get("/api/products")
+@app.get("/ace/api/products")
 def get_products():
     return {"products": PRODUCTS}
 
 
-@app.post("/api/checkout")
+@app.post("/ace/api/checkout")
 def checkout(request: CheckoutRequest):
     total = 0.0
     order_items = []
