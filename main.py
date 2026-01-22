@@ -3,6 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uuid
 from datetime import datetime
+import sentry_sdk
+
+sentry_sdk.init(
+    dsn="https://ee85452864abe7c4ef1f0f5ca4c199b6@o4510752088522752.ingest.us.sentry.io/4510752090750976",
+    # Add data like request headers and IP for users,
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True,
+)
 
 app = FastAPI(title="Ace Electronics API")
 
@@ -67,6 +75,9 @@ class CheckoutRequest(BaseModel):
 def get_products():
     return {"products": PRODUCTS}
 
+@app.get("/sentry-debug")
+async def trigger_error():
+    division_by_zero = 1 / 0
 
 @app.post("/ace/api/checkout")
 def checkout(request: CheckoutRequest):
